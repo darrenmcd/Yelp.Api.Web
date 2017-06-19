@@ -6,7 +6,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Yelp.Api.Models;
 
@@ -19,9 +18,9 @@ namespace Yelp.Api
     {
         #region Variables
 
-        private const string BASE_ADDRESS = "https://api.yelp.com";
-        private const string API_VERSION = "/v3";
-        private const int FIRST_TIME_WAIT = 500;
+        private const string _BaseAddress = "https://api.yelp.com";
+        private const string _ApiVersion = "/v3";
+        private const int _FirstTimeWait = 500;
 
         /// <summary>
         /// The default fragment used by GraphQL calls.  This is not a variable that can be set, it is only
@@ -29,7 +28,7 @@ namespace Yelp.Api
         /// If a different search behavior is desired, please use the fragment variable in any GraphQL 
         /// function call.
         /// </summary>
-        public const string DEFAULT_FRAGMENT = @"
+        public const string DefaultFragment = @"
 id
 photos
 name
@@ -58,10 +57,10 @@ hours {
     is_open_now
 }
 ";
-        private const string DEFAULT_FRAGMENT_NAME = "businessInfo";
+        private const string _DefaultFragmentName = "businessInfo";
 
-        private string AppID { get; set; }
-        private string AppSecret { get; set; }
+        private string YelpAppId { get; set; }
+        private string YelpAppSecret { get; set; }
         private TokenResponse Token { get; set; }
 
         #endregion
@@ -71,19 +70,23 @@ hours {
         /// <summary>
         /// Constructor for the Client class.
         /// </summary>
-        /// <param name="appID">App ID from yelp's developer registration page.</param>
-        /// <param name="appSecret">App secret from yelp's developer registration page.</param>
+        /// <param name="yelpAppId">App ID from yelp's developer registration page.</param>
+        /// <param name="yelpAppSecret">App secret from yelp's developer registration page.</param>
         /// <param name="logger">Optional class instance which applies the ILogger interface to support custom logging within the client.</param>
-        public Client(string appID, string appSecret, ILogger logger = null) 
-            : base(BASE_ADDRESS, logger)
+        public Client(string yelpAppId, string yelpAppSecret, ILogger logger = null)
+            : base(_BaseAddress, logger)
         {
-            if (string.IsNullOrWhiteSpace(appID))
-                throw new ArgumentNullException(nameof(appID));
-            if (string.IsNullOrWhiteSpace(appSecret))
-                throw new ArgumentNullException(nameof(appSecret));
+            if (string.IsNullOrWhiteSpace(yelpAppId))
+            {
+                throw new ArgumentNullException(nameof(yelpAppId));
+            }
+            if (string.IsNullOrWhiteSpace(yelpAppSecret))
+            {
+                throw new ArgumentNullException(nameof(yelpAppSecret));
+            }
 
-            this.AppID = appID;
-            this.AppSecret = appSecret;
+            YelpAppId = yelpAppId;
+            YelpAppSecret = yelpAppSecret;
         }
 
         #endregion
@@ -99,27 +102,33 @@ hours {
         /// <returns></returns>
         private async Task<TokenResponse> GetTokenAsync(CancellationToken ct = default(CancellationToken))
         {
-            if (this.Token == null)
+            if (Token == null)
             {
-                var dic = new Dictionary<string, string>();
-                dic.Add("grant_type", "client_credentials");
-                dic.Add("client_id", this.AppID);
-                dic.Add("client_secret", this.AppSecret);
-                var contents = new System.Net.Http.FormUrlEncodedContent(dic.ToKeyValuePairList());
+                var dic = new Dictionary<string, string>
+                {
+                    {"grant_type", "client_credentials"},
+                    {"client_id", YelpAppId},
+                    {"client_secret", YelpAppSecret}
+                };
+                var contents = new FormUrlEncodedContent(dic.ToKeyValuePairList());
 
-                this.Token = await this.PostAsync<TokenResponse>("/oauth2/token", ct, contents);
+                Token = await PostAsync<TokenResponse>("/oauth2/token", ct, contents);
             }
 
-            return this.Token;
+            return Token;
         }
 
         private async Task ApplyAuthenticationHeaders(CancellationToken ct = default(CancellationToken))
         {
-            var token = await this.GetTokenAsync(ct);
+            var token = await GetTokenAsync(ct);
             if (token?.Error != null)
+            {
                 throw new Exception($"Could not retrieve authentication token: {token.Error?.Code} - {token.Error?.Description}");
-            else  if (!string.IsNullOrEmpty(token?.AccessToken))
-                this.Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+            }
+            else if (!string.IsNullOrEmpty(token?.AccessToken))
+            {
+                Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+            }
         }
 
         #endregion
@@ -136,21 +145,25 @@ hours {
         /// <returns>SearchResponse with businesses matching the specified parameters.</returns>
         public async Task<SearchResponse> SearchBusinessesWithDeliveryAsync(string term, double latitude, double longitude, CancellationToken ct = default(CancellationToken))
         {
-            this.ValidateCoordinates(latitude, longitude);
-            await this.ApplyAuthenticationHeaders(ct);
+            ValidateCoordinates(latitude, longitude);
+            await ApplyAuthenticationHeaders(ct);
 
             var dic = new Dictionary<string, object>();
-            if(!string.IsNullOrEmpty(term))
+            if (!string.IsNullOrEmpty(term))
                 dic.Add("term", term);
             dic.Add("latitude", latitude);
             dic.Add("longitude", longitude);
             string querystring = dic.ToQueryString();
-            var response = await this.GetAsync<SearchResponse>(API_VERSION + "/transactions/delivery/search" + querystring, ct);
+            var response = await GetAsync<SearchResponse>(_ApiVersion + "/transactions/delivery/search" + querystring, ct);
 
             // Set distances baased on lat/lon
             if (response?.Businesses != null && latitude != double.NaN && longitude != double.NaN)
+            {
                 foreach (var business in response.Businesses)
+                {
                     business.SetDistanceAway(latitude, longitude);
+                }
+            }
 
             return response;
         }
@@ -167,10 +180,12 @@ hours {
         {
             SearchRequest search = new SearchRequest();
             if (!string.IsNullOrEmpty(term))
+            {
                 search.Term = term;
+            }
             search.Latitude = latitude;
             search.Longitude = longitude;
-            return this.SearchBusinessesAllAsync(search, ct);
+            return SearchBusinessesAllAsync(search, ct);
         }
 
         /// <summary>
@@ -182,24 +197,30 @@ hours {
         public async Task<SearchResponse> SearchBusinessesAllAsync(SearchRequest search, CancellationToken ct = default(CancellationToken))
         {
             if (search == null)
+            {
                 throw new ArgumentNullException(nameof(search));
+            }
 
-            this.ValidateCoordinates(search.Latitude, search.Longitude);
-            await this.ApplyAuthenticationHeaders(ct);
+            ValidateCoordinates(search.Latitude, search.Longitude);
+            await ApplyAuthenticationHeaders(ct);
 
             var querystring = search.GetChangedProperties().ToQueryString();
-            var response = await this.GetAsync<SearchResponse>(API_VERSION + "/businesses/search" + querystring, ct);
+            var response = await GetAsync<SearchResponse>(_ApiVersion + "/businesses/search" + querystring, ct);
 
             // Set distances baased on lat/lon
             if (response?.Businesses != null && search.Latitude != double.NaN && search.Longitude != double.NaN)
+            {
                 foreach (var business in response.Businesses)
+                {
                     business.SetDistanceAway(search.Latitude, search.Longitude);
+                }
+            }
 
             return response;
         }
 
         #endregion
-        
+
         #region Autocomplete
 
         /// <summary>
@@ -213,23 +234,29 @@ hours {
         /// <returns>AutocompleteResponse with businesses/categories/terms matching the specified parameters.</returns>
         public async Task<AutocompleteResponse> AutocompleteAsync(string text, double latitude, double longitude, string locale = null, CancellationToken ct = default(CancellationToken))
         {
-            this.ValidateCoordinates(latitude, longitude);
-            await this.ApplyAuthenticationHeaders(ct);
+            ValidateCoordinates(latitude, longitude);
+            await ApplyAuthenticationHeaders(ct);
 
             var dic = new Dictionary<string, object>();
             dic.Add("text", text);
             dic.Add("latitude", latitude);
             dic.Add("longitude", longitude);
-            if(!string.IsNullOrEmpty(locale))
+            if (!string.IsNullOrEmpty(locale))
+            {
                 dic.Add("locale", locale);
+            }
             string querystring = dic.ToQueryString();
 
-            var response = await this.GetAsync<AutocompleteResponse>(API_VERSION + "/autocomplete" + querystring, ct);
+            var response = await GetAsync<AutocompleteResponse>(_ApiVersion + "/autocomplete" + querystring, ct);
 
             // Set distances baased on lat/lon
             if (response?.Businesses != null && latitude != double.NaN && longitude != double.NaN)
+            {
                 foreach (var business in response.Businesses)
+                {
                     business.SetDistanceAway(latitude, longitude);
+                }
+            }
 
             return response;
         }
@@ -246,8 +273,8 @@ hours {
         /// <returns>BusinessResponse instance with details of the specified business if found.</returns>
         public async Task<BusinessResponse> GetBusinessAsync(string businessID, CancellationToken ct = default(CancellationToken))
         {
-            await this.ApplyAuthenticationHeaders(ct);            
-            return await this.GetAsync<BusinessResponse>(API_VERSION + "/businesses/" + Uri.EscapeUriString(businessID), ct);
+            await ApplyAuthenticationHeaders(ct);
+            return await GetAsync<BusinessResponse>(_ApiVersion + "/businesses/" + Uri.EscapeUriString(businessID), ct);
         }
 
         /// <summary>
@@ -275,7 +302,7 @@ hours {
                 // If first time, sleep so the oAuth token can be retreived before making all the other calls.
                 if (firstTime)
                 {
-                    Task.Delay(FIRST_TIME_WAIT, ct).Wait(ct);
+                    Task.Delay(_FirstTimeWait, ct).Wait(ct);
                     firstTime = false;
                 }
             }
@@ -322,14 +349,16 @@ hours {
         /// <returns>ReviewsResponse instance with reviews of the specified business if found.</returns>
         public async Task<ReviewsResponse> GetReviewsAsync(string businessID, string locale = null, CancellationToken ct = default(CancellationToken))
         {
-            await this.ApplyAuthenticationHeaders(ct);
+            await ApplyAuthenticationHeaders(ct);
 
             var dic = new Dictionary<string, object>();
             if (!string.IsNullOrEmpty(locale))
+            {
                 dic.Add("locale", locale);
+            }
             string querystring = dic.ToQueryString();
 
-            return await this.GetAsync<ReviewsResponse>(API_VERSION + $"/businesses/{Uri.EscapeUriString(businessID)}/reviews" + querystring, ct);
+            return await GetAsync<ReviewsResponse>(_ApiVersion + $"/businesses/{Uri.EscapeUriString(businessID)}/reviews" + querystring, ct);
         }
 
         #endregion
@@ -344,9 +373,13 @@ hours {
         private void ValidateCoordinates(double latitude, double longitude)
         {
             if (latitude < -90 || latitude > 90)
+            {
                 throw new ArgumentOutOfRangeException(nameof(latitude));
+            }
             else if (longitude < -180 || latitude > 180)
+            {
                 throw new ArgumentOutOfRangeException(nameof(longitude));
+            }
         }
 
         #endregion
@@ -368,10 +401,10 @@ hours {
         /// To use these endpoints, you have to go to Manage App and opt into the Beta.
         /// </summary>
         /// <param name="businessIds">A list of Yelp Business Ids to request from the GraphQL endpoint.</param>
-        /// <param name="fragment">The search fragment to be used on all requested Business Ids.  The DEFAULT_FRAGMENT is used by default.</param>
+        /// <param name="fragment">The search fragment to be used on all requested Business Ids.  The DefaultFragment is used by default.</param>
         /// <param name="ct">Cancellation token instance. Use CancellationToken.None if not needed.</param>
         /// <returns>A task of an IEnumerable of all the BusinessResponses from the GraphQL API.</returns>
-        public async Task<IEnumerable<BusinessResponse>> GetGraphQlAsync(List<string> businessIds, string fragment = DEFAULT_FRAGMENT, CancellationToken ct = default(CancellationToken))
+        public async Task<IEnumerable<BusinessResponse>> GetGraphQlAsync(List<string> businessIds, string fragment = DefaultFragment, CancellationToken ct = default(CancellationToken))
         {
             if (!businessIds.Any())
             {
@@ -381,7 +414,7 @@ hours {
             var content = new StringContent(CreateJsonRequestForGraphQl(businessIds, fragment), Encoding.UTF8, "application/x-www-form-urlencoded");
 
             await ApplyAuthenticationHeaders(ct);
-            var jsonResponse = await PostAsync(API_VERSION + "/graphql", ct, content);
+            var jsonResponse = await PostAsync(_ApiVersion + "/graphql", ct, content);
 
             return ConvertJsonToBusinesResponses(jsonResponse);
         }
@@ -390,9 +423,9 @@ hours {
         /// Private method that programmatically creates the JSON request for the GraphQL.
         /// </summary>
         /// <param name="businessIds">A list of Yelp Business Ids to request from the GraphQL endpoint.</param>
-        /// <param name="fragment">The search fragment to be used on all requested Business Ids.  The DEFAULT_FRAGMENT is used by default.</param>
+        /// <param name="fragment">The search fragment to be used on all requested Business Ids.  The DefaultFragment is used by default.</param>
         /// <returns>A JSON string to be sent to the GraphQL endpoint.</returns>
-        private string CreateJsonRequestForGraphQl(List<string> businessIds, string fragment = DEFAULT_FRAGMENT)
+        private string CreateJsonRequestForGraphQl(List<string> businessIds, string fragment = DefaultFragment)
         {
             string body = "{ ";
             int x = 1;
@@ -401,14 +434,14 @@ hours {
             {
                 body += $@"
 b{x++}: business(id: ""{businessId}"") {{ 
-    ...{DEFAULT_FRAGMENT_NAME} 
+    ...{_DefaultFragmentName} 
 }} ";
             }
 
             body += "\n} \n";
 
             body += $@"
-fragment {DEFAULT_FRAGMENT_NAME} on Business {{ 
+fragment {_DefaultFragmentName} on Business {{ 
     {fragment}
 }} 
 ";
@@ -445,14 +478,14 @@ fragment {DEFAULT_FRAGMENT_NAME} on Business {{
         /// </summary>
         /// <param name="businessIds">A list of Yelp Business Ids to request from the GraphQL endpoint.</param>
         /// <param name="chunkSize">How many businesses to submit on each request.</param>
-        /// <param name="fragment">The search fragment to be used on all requested Business Ids.  The DEFAULT_FRAGMENT is used by default.</param>
+        /// <param name="fragment">The search fragment to be used on all requested Business Ids.  The DefaultFragment is used by default.</param>
         /// <param name="semaphoreSlimMax">The max amount of calls to be made at one time by SemaphoreSlim.</param>
         /// <param name="ct">Cancellation token instance. Use CancellationToken.None if not needed.</param>
         /// <returns>A list of all BusinessResponses returned by every call to the GraphQL endpoint.</returns>
         public async Task<IEnumerable<BusinessResponse>> GetGraphQlInChunksAsync(
             List<string> businessIds,
             int chunkSize = 5,
-            string fragment = DEFAULT_FRAGMENT,
+            string fragment = DefaultFragment,
             int semaphoreSlimMax = 10,
             CancellationToken ct = default(CancellationToken))
         {
@@ -485,7 +518,7 @@ fragment {DEFAULT_FRAGMENT_NAME} on Business {{
         /// </summary>
         /// <param name="businessIds">A list of Yelp Business Ids to request from the GraphQL endpoint.</param>
         /// <param name="chunkSize">How many businesses to submit on each request.</param>
-        /// <param name="fragment">The search fragment to be used on all requested Business Ids.  The DEFAULT_FRAGMENT is used by default.</param>
+        /// <param name="fragment">The search fragment to be used on all requested Business Ids.  The DefaultFragment is used by default.</param>
         /// <param name="semaphoreSlimMax">The max amount of calls to be made at one time by SemaphoreSlim.</param>
         /// <param name="ct">Cancellation token instance. Use CancellationToken.None if not needed.</param>
         /// <returns>
@@ -495,7 +528,7 @@ fragment {DEFAULT_FRAGMENT_NAME} on Business {{
         public List<Task<IEnumerable<BusinessResponse>>> GetGraphQlAsyncInParallel(
             List<string> businessIds,
             int chunkSize = 5,
-            string fragment = DEFAULT_FRAGMENT,
+            string fragment = DefaultFragment,
             int semaphoreSlimMax = 10,
             CancellationToken ct = default(CancellationToken))
         {
@@ -518,7 +551,7 @@ fragment {DEFAULT_FRAGMENT_NAME} on Business {{
                 // If first time, sleep so the oAuth token can be retreived before making all the other calls.
                 if (firstTime)
                 {
-                    Task.Delay(FIRST_TIME_WAIT, ct).Wait(ct);
+                    Task.Delay(_FirstTimeWait, ct).Wait(ct);
                     firstTime = false;
                 }
 
@@ -534,13 +567,13 @@ fragment {DEFAULT_FRAGMENT_NAME} on Business {{
         /// </summary>
         /// <param name="semaphoreSlim">The Semaphore being used by the calling method.</param>
         /// <param name="businessIds">A list of Yelp Business Ids to request from the GraphQL endpoint.</param>
-        /// <param name="fragment">The search fragment to be used on all requested Business Ids.  The DEFAULT_FRAGMENT is used by default.</param>
+        /// <param name="fragment">The search fragment to be used on all requested Business Ids.  The DefaultFragment is used by default.</param>
         /// <param name="ct">Cancellation token instance. Use CancellationToken.None if not needed.</param>
         /// <returns>A list of BusinessResponses from the GraphQL endpoint wrapped in a Task.</returns>
         private async Task<IEnumerable<BusinessResponse>> ProcessSemaphoreSlimsForGraphQl(
             SemaphoreSlim semaphoreSlim,
             List<string> businessIds,
-            string fragment = DEFAULT_FRAGMENT,
+            string fragment = DefaultFragment,
             CancellationToken ct = default(CancellationToken))
         {
             Task<IEnumerable<BusinessResponse>> result;
