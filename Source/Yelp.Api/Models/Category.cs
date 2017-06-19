@@ -22,7 +22,7 @@ namespace Yelp.Api.Models
             if (other == null)
                 return false;
 
-            if (this.Alias != null && this.Alias.Equals(other.Alias, StringComparison.CurrentCultureIgnoreCase))
+            if (Alias != null && Alias.Equals(other.Alias, StringComparison.CurrentCultureIgnoreCase))
                 return true;
             else
                 return false;
@@ -37,12 +37,12 @@ namespace Yelp.Api.Models
             if (category == null)
                 return false;
             else
-                return this.Equals(category);
+                return Equals(category);
         }
 
         public override int GetHashCode()
         {
-            return this.Alias?.GetHashCode() ?? base.GetHashCode();
+            return Alias?.GetHashCode() ?? base.GetHashCode();
         }
 
         public static bool operator ==(Category category1, Category category2)

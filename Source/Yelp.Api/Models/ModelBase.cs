@@ -23,7 +23,7 @@ namespace Yelp.Api.Models
             Dictionary<string, object> dic = new Dictionary<string, object>();
             foreach (var propertyName in _changedProperties)
             {
-                PropertyInfo pi = this.GetType().GetRuntimeProperty(propertyName);
+                PropertyInfo pi = GetType().GetRuntimeProperty(propertyName);
 
                 var jsonProp = pi.CustomAttributes.FirstOrDefault(f => f.AttributeType.GetTypeInfo() == typeof(JsonPropertyAttribute).GetTypeInfo());
                 if (jsonProp != null && jsonProp.ConstructorArguments.Any())
@@ -83,14 +83,14 @@ namespace Yelp.Api.Models
         /// desired value.</returns>
         protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] String propertyName = null)
         {
-            if (System.Collections.Generic.EqualityComparer<T>.Default.Equals(storage, value))
+            if (EqualityComparer<T>.Default.Equals(storage, value))
             {
                 return false;
             }
             else
             {
                 storage = value;
-                this.NotifyPropertyChanged(propertyName);
+                NotifyPropertyChanged(propertyName);
                 return true;
             }
         }
@@ -103,7 +103,7 @@ namespace Yelp.Api.Models
         /// that support <see cref="CallerMemberNameAttribute"/>.</param>
         protected internal virtual void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         /// <summary>
@@ -113,8 +113,8 @@ namespace Yelp.Api.Models
         /// <param name="property">Expression to retrieve the property. Example: () => this.FirstName</param>
         protected void NotifyPropertyChanged<T>(Expression<Func<T>> property)
         {
-            var propertyName = this.GetPropertyName<T>(property);
-            this.NotifyPropertyChanged(propertyName);
+            var propertyName = GetPropertyName<T>(property);
+            NotifyPropertyChanged(propertyName);
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace Yelp.Api.Models
         /// <returns>String value representing the property name.</returns>
         private string GetPropertyName<T>(Expression<Func<T>> property)
         {
-            MemberExpression memberExpression = this.GetMememberExpression<T>(property);
+            MemberExpression memberExpression = GetMememberExpression<T>(property);
             return memberExpression.Member.Name;
         }
 

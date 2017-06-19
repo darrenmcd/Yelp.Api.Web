@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using Yelp.Api.Extensions;
 using Yelp.Api.Models;
 
 namespace Yelp.Api

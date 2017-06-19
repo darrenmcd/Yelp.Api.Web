@@ -30,15 +30,15 @@ namespace Yelp.Api
 
         public ClientBase(string baseURL = null, ILogger logger = null)
         {
-            this.BaseUri = new Uri(baseURL);
-            this.Client = new HttpClient();
+            BaseUri = new Uri(baseURL);
+            Client = new HttpClient();
             _logger = logger;
         }
 
         public void Dispose()
         {
-            this.Client.Dispose();
-            this.Client = null;
+            Client.Dispose();
+            Client = null;
         }
 
         #endregion
@@ -61,8 +61,8 @@ namespace Yelp.Api
             if (string.IsNullOrEmpty(url))
                 throw new ArgumentNullException(nameof(url));
 
-            var response = await this.Client.GetAsync(new Uri(this.BaseUri, url), ct);
-            this.Log(response);
+            var response = await Client.GetAsync(new Uri(BaseUri, url), ct);
+            Log(response);
             var data = await response.Content.ReadAsStringAsync();
             return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(data);
         }
@@ -78,7 +78,7 @@ namespace Yelp.Api
         /// <returns>Instance of the type specified representing the data returned from the URL.</returns>
         protected async Task<T> PostAsync<T>(string url, CancellationToken ct, HttpContent contents = default(HttpContent))
         {
-            string data = await this.PostAsync(url, ct, contents);
+            string data = await PostAsync(url, ct, contents);
             return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(data);
         }
 
@@ -92,7 +92,7 @@ namespace Yelp.Api
         /// <returns>Response contents as string else null if nothing.</returns>
         protected async Task<string> PostAsync(string url, CancellationToken ct, HttpContent contents = default(HttpContent))
         {
-            HttpResponseMessage response = await this.PostAsync(url, contents, ct);
+            HttpResponseMessage response = await PostAsync(url, contents, ct);
             var data = await response.Content?.ReadAsStringAsync();
             return data;
         }
@@ -110,8 +110,8 @@ namespace Yelp.Api
             if (string.IsNullOrEmpty(url))
                 throw new ArgumentNullException(nameof(url));
 
-            var response = await this.Client.PostAsync(new Uri(this.BaseUri, url), contents, ct);
-            this.Log(response);
+            var response = await Client.PostAsync(new Uri(BaseUri, url), contents, ct);
+            Log(response);
             return response;
         }
 
@@ -150,7 +150,7 @@ namespace Yelp.Api
                     request.Headers?.ToString(),
                     request.Content?.ReadAsStringAsync().Result
                 );
-                this.Log(message);
+                Log(message);
             }
             catch (Exception ex)
             {
@@ -167,7 +167,7 @@ namespace Yelp.Api
             if (response == null)
                 throw new ArgumentNullException(nameof(response));
 
-            this.Log(response.RequestMessage);
+            Log(response.RequestMessage);
 
             try
             {
@@ -185,7 +185,7 @@ namespace Yelp.Api
                     Convert.ToDecimal(Convert.ToDouble(response.Content.Headers.ContentLength) / 1024),
                     response.Content?.ReadAsStringAsync().Result
                     );
-                this.Log(message);
+                Log(message);
             }
             catch (Exception ex)
             {

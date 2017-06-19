@@ -18,7 +18,7 @@ namespace Yelp.Api.Models
         public string Term
         {
             get { return _Term; }
-            set { this.SetProperty(ref _Term, value); }
+            set { SetProperty(ref _Term, value); }
         }
 
         private string _Location;
@@ -30,7 +30,7 @@ namespace Yelp.Api.Models
         public string Location
         {
             get { return _Location; }
-            set { this.SetProperty(ref _Location, value); }
+            set { SetProperty(ref _Location, value); }
         }
 
         private double _Latitude = double.NaN;
@@ -41,7 +41,7 @@ namespace Yelp.Api.Models
         public double Latitude
         {
             get { return _Latitude; }
-            set { this.SetProperty(ref _Latitude, value); }
+            set { SetProperty(ref _Latitude, value); }
         }
 
         private double _Longitude = double.NaN;
@@ -52,7 +52,7 @@ namespace Yelp.Api.Models
         public double Longitude
         {
             get { return _Longitude; }
-            set { this.SetProperty(ref _Longitude, value); }
+            set { SetProperty(ref _Longitude, value); }
         }
 
         private int _Radius;
@@ -63,7 +63,7 @@ namespace Yelp.Api.Models
         public int Radius
         {
             get { return _Radius; }
-            set { this.SetProperty(ref _Radius, value); }
+            set { SetProperty(ref _Radius, value); }
         }
 
         private string _Categories;
@@ -76,7 +76,7 @@ namespace Yelp.Api.Models
         public string Categories
         {
             get { return _Categories; }
-            set { this.SetProperty(ref _Categories, value); }
+            set { SetProperty(ref _Categories, value); }
         }
 
         private string _Locale;
@@ -87,7 +87,7 @@ namespace Yelp.Api.Models
         public string Locale
         {
             get { return _Locale; }
-            set { this.SetProperty(ref _Locale, value); }
+            set { SetProperty(ref _Locale, value); }
         }
 
         private int _MaxResults = 20;
@@ -98,7 +98,7 @@ namespace Yelp.Api.Models
         public int MaxResults
         {
             get { return _MaxResults; }
-            set { this.SetProperty(ref _MaxResults, value); }
+            set { SetProperty(ref _MaxResults, value); }
         }
 
         private int _ResultsOffset = 0;
@@ -109,7 +109,7 @@ namespace Yelp.Api.Models
         public int ResultsOffset
         {
             get { return _ResultsOffset; }
-            set { this.SetProperty(ref _ResultsOffset, value); }
+            set { SetProperty(ref _ResultsOffset, value); }
         }
 
         private string _SortBy;
@@ -122,7 +122,7 @@ namespace Yelp.Api.Models
         public string SortBy
         {
             get { return _SortBy; }
-            set { this.SetProperty(ref _SortBy, value); }
+            set { SetProperty(ref _SortBy, value); }
         }
 
         private string _Price;
@@ -134,7 +134,7 @@ namespace Yelp.Api.Models
         public string Price
         {
             get { return _Price; }
-            set { this.SetProperty(ref _Price, value); }
+            set { SetProperty(ref _Price, value); }
         }
 
         private bool _OpenNow;
@@ -145,7 +145,7 @@ namespace Yelp.Api.Models
         public bool OpenNow
         {
             get { return _OpenNow; }
-            set { this.SetProperty(ref _OpenNow, value); }
+            set { SetProperty(ref _OpenNow, value); }
         }
 
         private int _OpenAt;
@@ -157,7 +157,7 @@ namespace Yelp.Api.Models
         public int OpenAt
         {
             get { return _OpenAt; }
-            set { this.SetProperty(ref _OpenAt, value); }
+            set { SetProperty(ref _OpenAt, value); }
         }
 
         private string _Attributes;
@@ -176,7 +176,7 @@ namespace Yelp.Api.Models
         public string Attributes
         {
             get { return _Attributes; }
-            set { this.SetProperty(ref _Attributes, value); }
+            set { SetProperty(ref _Attributes, value); }
         }
 
         #endregion

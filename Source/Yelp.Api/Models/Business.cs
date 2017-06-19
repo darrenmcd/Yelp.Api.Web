@@ -78,7 +78,7 @@ namespace Yelp.Api.Models
         public double DistanceAway
         {
             get { return _DistanceAway; }
-            private set { this.SetProperty(ref _DistanceAway, value); }
+            private set { SetProperty(ref _DistanceAway, value); }
         }
 
         /// <summary>
@@ -87,12 +87,12 @@ namespace Yelp.Api.Models
         /// <param name="loc">Location object to calculate distance away with.</param>
         public void SetDistanceAway(Coordinates loc)
         {
-            this.DistanceAway = this.GetDistanceTo(loc);
+            DistanceAway = GetDistanceTo(loc);
         }
 
         public void SetDistanceAway(double latitude, double longitude)
         {
-            this.DistanceAway = this.GetDistanceTo(new Coordinates { Latitude = latitude, Longitude = longitude });
+            DistanceAway = GetDistanceTo(new Coordinates { Latitude = latitude, Longitude = longitude });
         }
 
         /// <summary>
@@ -105,10 +105,10 @@ namespace Yelp.Api.Models
             if (loc != null)
             {
                 var r = IsMetric ? 6371 : 3960;
-                var dLat = ToRadian(this.Coordinates.Latitude - loc.Latitude);
-                var dLon = ToRadian(this.Coordinates.Longitude - loc.Longitude);
+                var dLat = ToRadian(Coordinates.Latitude - loc.Latitude);
+                var dLon = ToRadian(Coordinates.Longitude - loc.Longitude);
                 var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-                Math.Cos(ToRadian(loc.Latitude)) * Math.Cos(ToRadian(this.Coordinates.Latitude)) *
+                Math.Cos(ToRadian(loc.Latitude)) * Math.Cos(ToRadian(Coordinates.Latitude)) *
                 Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
                 var c = 2 * Math.Asin(Math.Min(1, Math.Sqrt(a)));
                 var d = r * c;

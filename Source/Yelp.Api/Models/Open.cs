@@ -31,7 +31,7 @@ namespace Yelp.Api.Models
 
         public override string ToString()
         {
-            return string.Format("{0}: {1} - {2}", (System.DayOfWeek)this.Day, this.FormatTime(this.Start), this.FormatTime(this.End));
+            return string.Format("{0}: {1} - {2}", (System.DayOfWeek)Day, FormatTime(Start), FormatTime(End));
         }
     }
 }
