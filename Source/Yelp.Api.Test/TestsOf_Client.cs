@@ -1,29 +1,27 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Yelp.Api.Models;
 
 namespace Yelp.Api.Test
 {
     [TestClass]
-    public class UnitTest1
+    public class TestsOf_Client
     {
         #region Variables
 
-        private const string APP_ID = "39ukJIrbqD1Pk5V16B5weA";
-        private const string APP_SECRET = "pDgLtCkYCRAnTpI9TP15xRMV4yeX75UMud05z7Cksm0KuCpw5qpQLMfVWzmOSBKC";
+        private const string _YelpAppId = "6WfLJ5rmFrGOsNS7cKo5Mg";
+        private const string _YelpAppSecret = "a2npPM9U0YbBDbSwUxYXVTpUFj2JLWA1N4HykT6FfHHDgPmshRaGYHAKValxWf5X";
 
-        private Client _client;
+        private readonly Client _client;
 
         #endregion
 
         #region Constructors
 
-        public UnitTest1()
+        public TestsOf_Client()
         {
-            _client = new Client(APP_ID, APP_SECRET);
+            _client = new Client(_YelpAppId, _YelpAppSecret);
         }
 
         #endregion
@@ -85,8 +83,6 @@ namespace Yelp.Api.Test
             Assert.AreNotSame(null, response);
             Assert.AreSame(null, response?.Error, $"Response error returned {response?.Error?.Code} - {response?.Error?.Description}");
         }
-
-
 
         [TestMethod]
         public void TestGetModelChanges()
