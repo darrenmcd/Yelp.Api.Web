@@ -124,5 +124,15 @@ namespace Yelp.Api.Web.Models
         }
 
         #endregion
+
+        #region Extra Properties
+
+        /// <summary>
+        /// This property is NOT in the Yelp Api.  It's a special flag for you to use as you see fit.
+        /// You could use it to see if someone likes a business, a business is processed, etc.
+        /// </summary>
+        public bool IsSpecialFlag { get; set; } = false;
+
+        #endregion
     }
 }
