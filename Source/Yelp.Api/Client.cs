@@ -59,7 +59,6 @@ hours {
 }
 ";
         private const string DEFAULT_FRAGMENT_NAME = "businessInfo";
-        private const int FIRST_TIME_WAIT = 500;
 
         private string AppID { get; set; }
         private string AppSecret { get; set; }
