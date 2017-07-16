@@ -69,6 +69,7 @@ namespace Yelp.Api.Web.Test
         public void TestGetBusinessAsyncInParallel()
         {
             List<string> businessIds = new List<string> { "north-india-restaurant-san-francisco" };
+
             var response = _client.GetBusinessAsyncInParallel(businessIds).Result;
 
             Assert.AreNotSame(null, response);
@@ -90,6 +91,7 @@ namespace Yelp.Api.Web.Test
             var m = new SearchRequest();
             m.Term = "Hello world";
             m.Price = "$";
+
             var dic = m.GetChangedProperties();
 
             Assert.AreEqual(dic.Count, 2);
@@ -105,6 +107,7 @@ namespace Yelp.Api.Web.Test
         public void TestGetGraphQlAsync()
         {
             List<string> businessIds = new List<string> { "north-india-restaurant-san-francisco" };
+
             var response = _client.GetGraphQlAsync(businessIds).Result;
 
             Assert.AreNotSame(null, response);
@@ -115,6 +118,7 @@ namespace Yelp.Api.Web.Test
         public void TestGetGraphQlInChunksAsync()
         {
             List<string> businessIds = new List<string> { "north-india-restaurant-san-francisco" };
+
             var response = _client.GetGraphQlInChunksAsync(businessIds).Result;
 
             Assert.AreNotSame(null, response);
@@ -125,6 +129,7 @@ namespace Yelp.Api.Web.Test
         public void TestGetGraphQlAsyncInParallel()
         {
             List<string> businessIds = new List<string> { "north-india-restaurant-san-francisco" };
+
             var response = _client.GetGraphQlAsyncInParallel(businessIds);
 
             Assert.AreNotSame(null, response);
@@ -135,8 +140,7 @@ namespace Yelp.Api.Web.Test
         [TestMethod]
         public void TestProcessResultsOfGetGraphQlAsyncInParallel()
         {
-            List<string> businessIds = new List<string>();
-            businessIds.Add("north-india-restaurant-san-francisco");
+            List<string> businessIds = new List<string> {"north-india-restaurant-san-francisco"};
             var response = _client.GetGraphQlAsyncInParallel(businessIds);
 
             var results = _client.ProcessResultsOfGetGraphQlAsyncInParallel(response);
