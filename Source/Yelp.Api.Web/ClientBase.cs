@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Yelp.Api.Web.Models;
 
 namespace Yelp.Api.Web
@@ -64,7 +65,15 @@ namespace Yelp.Api.Web
             var response = await Client.GetAsync(new Uri(BaseUri, url), ct);
             Log(response);
             var data = await response.Content.ReadAsStringAsync();
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(data);
+
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            var jsonModel = JsonConvert.DeserializeObject<T>(data, settings);
+
+            return jsonModel;
         }
 
         /// <summary>
@@ -79,7 +88,15 @@ namespace Yelp.Api.Web
         protected async Task<T> PostAsync<T>(string url, CancellationToken ct, HttpContent contents = default(HttpContent))
         {
             string data = await PostAsync(url, ct, contents);
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(data);
+
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            var jsonModel = JsonConvert.DeserializeObject<T>(data, settings);
+
+            return jsonModel;
         }
 
         /// <summary>

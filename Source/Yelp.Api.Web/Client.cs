@@ -158,7 +158,7 @@ hours {
             var response = await GetAsync<SearchResponse>(_ApiVersion + "/transactions/delivery/search" + querystring, ct);
 
             // Set distances baased on lat/lon
-            if (response?.Businesses != null && latitude != double.NaN && longitude != double.NaN)
+            if (response?.Businesses != null && !double.IsNaN(latitude) && !double.IsNaN(longitude))
             {
                 foreach (var business in response.Businesses)
                 {
@@ -209,7 +209,7 @@ hours {
             var response = await GetAsync<SearchResponse>(_ApiVersion + "/businesses/search" + querystring, ct);
 
             // Set distances baased on lat/lon
-            if (response?.Businesses != null && search.Latitude != double.NaN && search.Longitude != double.NaN)
+            if (response?.Businesses != null && !double.IsNaN(search.Latitude) && !double.IsNaN(search.Longitude))
             {
                 foreach (var business in response.Businesses)
                 {
@@ -251,7 +251,7 @@ hours {
             var response = await GetAsync<AutocompleteResponse>(_ApiVersion + "/autocomplete" + querystring, ct);
 
             // Set distances baased on lat/lon
-            if (response?.Businesses != null && latitude != double.NaN && longitude != double.NaN)
+            if (response?.Businesses != null && !double.IsNaN(latitude) && !double.IsNaN(longitude))
             {
                 foreach (var business in response.Businesses)
                 {
