@@ -412,7 +412,7 @@ hours {
                 return new List<BusinessResponse>();
             }
 
-            var content = new StringContent(CreateJsonRequestForGraphQl(businessIds, fragment), Encoding.UTF8, "application/x-www-form-urlencoded");
+            var content = new StringContent(CreateRequestBodyForGraphQl(businessIds, fragment), Encoding.UTF8, "application/graphql");
 
             await ApplyAuthenticationHeaders(ct);
             var jsonResponse = await PostAsync(_ApiVersion + "/graphql", ct, content);
@@ -421,12 +421,12 @@ hours {
         }
 
         /// <summary>
-        /// Private method that programmatically creates the JSON request for the GraphQL.
+        /// Private method that programmatically creates the request body for the GraphQL.
         /// </summary>
         /// <param name="businessIds">A list of Yelp Business Ids to request from the GraphQL endpoint.</param>
         /// <param name="fragment">The search fragment to be used on all requested Business Ids.  The DefaultFragment is used by default.</param>
         /// <returns>A JSON string to be sent to the GraphQL endpoint.</returns>
-        private string CreateJsonRequestForGraphQl(List<string> businessIds, string fragment = DefaultFragment)
+        private string CreateRequestBodyForGraphQl(List<string> businessIds, string fragment = DefaultFragment)
         {
             string body = "{ ";
             int x = 1;
