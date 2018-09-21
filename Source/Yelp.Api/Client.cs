@@ -247,15 +247,18 @@ hours {
         /// Written in part with: https://stackoverflow.com/a/39796934/311444 and https://stackoverflow.com/a/23316722/311444
         /// </summary>
         /// <param name="businessIds">A list of Yelp Business Ids to request from the GraphQL endpoint.</param>
-        /// <param name="maxThreads">The max amount of calls to be made at one time by SemaphoreSlim.</param>
+        /// <param name="maxThreads">
+        ///     The max amount of calls to be made at one time by SemaphoreSlim. 2 is the recommended amount.
+        ///     More threads would mean more calls at once, but a greater chance of getting calls rejected by Yelp.
+        /// </param>
         /// <param name="ct">Cancellation token instance. Use CancellationToken.None if not needed.</param>
         /// <returns>Returns an IEnumerable of BusinessResponses for each submitted businessId, wrapped in a Task.</returns>
         public async Task<IEnumerable<BusinessResponse>> GetBusinessAsyncInParallel(
             IEnumerable<string> businessIds, 
-            int maxThreads = 10, 
+            int maxThreads = 2, 
             CancellationToken ct = default(CancellationToken))
         {
-            SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, maxThreads);
+            SemaphoreSlim semaphoreSlim = new SemaphoreSlim(maxThreads, maxThreads);
 
             var businessResponses = new List<BusinessResponse>();
             await Task.WhenAll(businessIds.Select(async businessId =>
@@ -415,7 +418,10 @@ fragment {DEFAULT_FRAGMENT_NAME} on Business {{
         ///     Submitting less at one time will make the calls to Yelp quicker, but there will be more calls to Yelp overall.
         /// </param>
         /// <param name="fragment">The search fragment to be used on all requested Business Ids.  The DEFAULT_FRAGMENT is used by default.</param>
-        /// <param name="maxThreads">The max amount of calls to be made at one time by SemaphoreSlim.</param>
+        /// <param name="maxThreads">
+        ///     The max amount of calls to be made at one time by SemaphoreSlim. 2 is the recommended amount.
+        ///     More threads would mean more calls at once, but a greater chance of getting calls rejected by Yelp.
+        /// </param>
         /// <param name="ct">Cancellation token instance. Use CancellationToken.None if not needed.</param>
         /// <returns>
         /// A list of Tasks where each Task contains an IEnumerable of BusinessResponses.  The caller will have to await for the Tasks 
@@ -425,7 +431,7 @@ fragment {DEFAULT_FRAGMENT_NAME} on Business {{
             List<string> businessIds,
             int chunkSize = 25,
             string fragment = DEFAULT_FRAGMENT,
-            int maxThreads = 10,
+            int maxThreads = 2,
             CancellationToken ct = default(CancellationToken))
         {
             Task<IEnumerable<BusinessResponse>> businessResponseTasks = GetGraphQlInChunksAsyncInParallel(businessIds, chunkSize, fragment, maxThreads, ct);
@@ -448,7 +454,10 @@ fragment {DEFAULT_FRAGMENT_NAME} on Business {{
         ///     Submitting less at one time will make the calls to Yelp quicker, but there will be more calls to Yelp overall.
         /// </param>
         /// <param name="fragment">The search fragment to be used on all requested Business Ids.  The DEFAULT_FRAGMENT is used by default.</param>
-        /// <param name="maxThreads">The max amount of calls to be made at one time by SemaphoreSlim.</param>
+        /// <param name="maxThreads">
+        ///     The max amount of calls to be made at one time by SemaphoreSlim. 2 is the recommended amount.
+        ///     More threads would mean more calls at once, but a greater chance of getting calls rejected by Yelp.
+        /// </param>
         /// <param name="ct">Cancellation token instance. Use CancellationToken.None if not needed.</param>
         /// <returns>
         /// A list of Tasks where each Task contains an IEnumerable of BusinessResponses.  The caller will have to await for the Tasks 
@@ -458,10 +467,10 @@ fragment {DEFAULT_FRAGMENT_NAME} on Business {{
             List<string> businessIds,
             int chunkSize = 25,
             string fragment = DEFAULT_FRAGMENT,
-            int maxThreads = 10,
+            int maxThreads = 2,
             CancellationToken ct = default(CancellationToken))
         {
-            SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, maxThreads);
+            SemaphoreSlim semaphoreSlim = new SemaphoreSlim(maxThreads, maxThreads);
 
             int page = 0;
             int totalBusinessIds = businessIds.Count;

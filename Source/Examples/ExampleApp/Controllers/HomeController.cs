@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Threading;
 using Microsoft.AspNetCore.Mvc;
 using Yelp.Api;
 using Yelp.Api.Models;
@@ -46,7 +46,8 @@ namespace ExampleApp.Controllers
 
             foreach (var yelpId in _yelpIds)
             {
-                BusinessResponse businessResponse = _client.GetBusinessAsync(yelpId).Result;
+                BusinessResponse businessResponse = 
+                    _client.GetBusinessAsync(yelpId, ct: CancellationToken.None, connectionRetrySettings: new ConnectionRetrySettings()).Result;
                 businessResponses.Add(businessResponse);
             }
 
@@ -56,7 +57,8 @@ namespace ExampleApp.Controllers
         // 30 restaurants retrieved in parallel in about 2-3 seconds.
         public IActionResult TestGetBusinessAsyncInParallel()
         {
-            IEnumerable<BusinessResponse> businessResponses = _client.GetBusinessAsyncInParallel(_yelpIds.ToList()).Result;
+            IEnumerable<BusinessResponse> businessResponses = 
+                _client.GetBusinessAsyncInParallel(_yelpIds.ToList(), maxThreads: 2, ct: default(CancellationToken)).Result;
 
             return View("Result", businessResponses);
         }
@@ -65,7 +67,8 @@ namespace ExampleApp.Controllers
         public IActionResult TestGetGraphQlAsync()
         {
             // More than 10 items at a time used to crash Yelp's API.  Seems like they fixed it because now I can send at least 30 at a time.
-            IEnumerable<BusinessResponse> businessResponses = _client.GetGraphQlAsync(_yelpIds.ToList()).Result;
+            IEnumerable<BusinessResponse> businessResponses = 
+                _client.GetGraphQlAsync(_yelpIds.ToList(), fragment: Client.DEFAULT_FRAGMENT, ct: default(CancellationToken)).Result;
 
             return View("Result", businessResponses);
         }
@@ -73,7 +76,8 @@ namespace ExampleApp.Controllers
         // 30 restaurants retrieved via multiple GraphQL calls made in parallel in about 2-3 seconds.
         public IActionResult TestGetGraphQlInChunksAsync()
         {
-            IEnumerable<BusinessResponse> businessResponses = _client.GetGraphQlInChunksAsync(_yelpIds.ToList(), chunkSize: 25, semaphoreSlimMax: 10);
+            IEnumerable<BusinessResponse> businessResponses = 
+                _client.GetGraphQlInChunksAsync(_yelpIds.ToList(), chunkSize: 25, fragment: Client.DEFAULT_FRAGMENT, maxThreads: 2, ct: default(CancellationToken));
 
             return View("Result", businessResponses);
         }
