@@ -73,7 +73,7 @@ namespace ExampleApp.Controllers
         // 30 restaurants retrieved via multiple GraphQL calls made in parallel in about 2-3 seconds.
         public IActionResult TestGetGraphQlInChunksAsync()
         {
-            IEnumerable<BusinessResponse> businessResponses = _client.GetGraphQlInChunksAsync(_yelpIds.ToList(), chunkSize: 10, semaphoreSlimMax: 10);
+            IEnumerable<BusinessResponse> businessResponses = _client.GetGraphQlInChunksAsync(_yelpIds.ToList(), chunkSize: 25, semaphoreSlimMax: 10);
 
             return View("Result", businessResponses);
         }
